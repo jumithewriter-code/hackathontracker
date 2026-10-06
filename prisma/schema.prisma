@@ -1,0 +1,52 @@
+// Prisma schema for the Hackathon Tracker.
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled Neon connection (host contains "-pooler") — used by the app at runtime.
+  url       = env("DATABASE_URL")
+  // Direct (non-pooled) Neon connection — used by `prisma migrate`.
+  directUrl = env("DIRECT_URL")
+}
+
+/// Statuses you set yourself. "Overdue" and "Missed" are NOT stored —
+/// they are computed from the deadline (see lib/deadlines.ts).
+enum Status {
+  CONSIDERING
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Result {
+  WON
+  PLACED
+  SUBMITTED
+  DID_NOT_FINISH
+}
+
+model Hackathon {
+  id           String    @id @default(cuid())
+  name         String
+  organizer    String?
+  category     String?
+  status       Status    @default(CONSIDERING)
+  startDate    DateTime? @db.Date
+  deadline     DateTime? @db.Timestamptz(3)
+  prize        String?
+  link         String?
+  notes        String?
+  result       Result?
+  resultDetail String?
+  /// null = active; set = archived (hidden from the main tabs)
+  archivedAt   DateTime? @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@index([archivedAt, deadline])
+  @@index([status])
+}

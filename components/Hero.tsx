@@ -1,6 +1,6 @@
 "use client";
-// Top of the page: greeting, the duck's sticky note, the T-minus 24h hazard
-// block, the next 3 launches, and a two-week ruler of deadlines.
+// Top of the page: greeting, the duck's sticky note, the next 3 launches, and
+// a two-week ruler of deadlines.
 import { useState } from "react";
 import { DAY, msLeft, nextDeadlines, overdueList, timeLeftLabel, urgency } from "@/lib/deadlines";
 import { formatDeadline } from "@/lib/format";
@@ -94,7 +94,7 @@ export function Hero({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOp
               )}
             </h1>
             <p className="mt-2 font-mono text-xs text-muted">
-              {inFlight} in flight · {overdue.length} in T-minus · {list.filter((h) => h.status === "COMPLETED").length} launched
+              {inFlight} in flight · {overdue.length} overdue · {list.filter((h) => h.status === "COMPLETED").length} launched
             </p>
           </div>
 
@@ -104,9 +104,8 @@ export function Hero({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOp
           </div>
         </div>
 
-        {/* right: T-minus + next launches */}
+        {/* right: next launches */}
         <div className="space-y-5">
-          {overdue.length > 0 && <TMinus list={overdue} now={now} onOpen={onOpen} />}
           <div>
             <h2 className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">Launch schedule · next 3</h2>
             {next.length === 0 ? (
@@ -123,33 +122,6 @@ export function Hero({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOp
       </div>
 
       <LaunchRuler list={list} now={now} />
-    </section>
-  );
-}
-
-/** Hazard-taped block for anything due within 24 hours. */
-function TMinus({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOpen: (h: Hackathon) => void }) {
-  return (
-    <section aria-label="Overdue — due within 24 hours" className="overflow-hidden rounded-md border-2 border-navy bg-card">
-      <div className="hazard h-2.5" />
-      <div className="space-y-2 p-3">
-        <h2 className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-rocket">
-          <span className="inline-block size-2 animate-pulse rounded-full bg-rocket" /> T-minus 24h · overdue
-        </h2>
-        {list.map((h) => (
-          <button
-            key={h.id}
-            onClick={() => onOpen(h)}
-            className="flex w-full items-center gap-3 rounded-md bg-hl-red/60 px-3 py-2 text-left hover:bg-hl-red focus:outline-none focus-visible:ring-2 focus-visible:ring-navy"
-          >
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-display text-[15px] font-bold">{h.name}</span>
-              <span className="block truncate font-mono text-[11px] text-navy/70">due {formatDeadline(h.deadline)}</span>
-            </span>
-          </button>
-        ))}
-      </div>
-      <div className="hazard h-2.5" />
     </section>
   );
 }

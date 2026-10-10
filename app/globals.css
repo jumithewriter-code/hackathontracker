@@ -109,10 +109,5 @@ body {
   box-shadow: 0 1px 0 rgba(28, 37, 65, 0.06), 0 6px 18px -8px rgba(28, 37, 65, 0.25);
 }
 
-/* Hazard tape stripes for the T-minus section. */
-@utility hazard {
-  background-image: repeating-linear-gradient(-45deg, var(--color-rocket) 0 12px, var(--color-duck) 12px 24px);
-}
-
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }

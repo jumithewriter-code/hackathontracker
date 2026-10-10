@@ -51,7 +51,7 @@ export function Hero({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOp
     );
   } else if (soonest && urgency(soonest, now) === "red") {
     mood = "sweat";
-    note = <>{soonest.name} is close — {timeLeftLabel(soonest, now)} to go.</>;
+    note = <>{soonest.name} is due in {timeLeftLabel(soonest, now)}. Getting close!</>;
   } else if (soonest) {
     note = <>Next launch: {soonest.name}, {timeLeftLabel(soonest, now)} away. Quack on!</>;
   } else {
@@ -152,7 +152,7 @@ function LaunchRuler({ list, now }: { list: Hackathon[]; now: Date }) {
           return (
             <div
               key={k}
-              title={items.length ? items.map((h) => `${h.name} — ${formatDeadline(h.deadline)}`).join("\n") : undefined}
+              title={items.length ? items.map((h) => `${h.name}, due ${formatDeadline(h.deadline)}`).join("\n") : undefined}
               className={`relative flex flex-1 flex-col items-center pb-1.5 pt-9 ${i ? "border-l border-navy/30" : ""} ${isPast ? "opacity-55" : ""}`}
             >
               {/* ruler ticks */}

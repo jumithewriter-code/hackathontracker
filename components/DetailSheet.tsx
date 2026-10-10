@@ -133,11 +133,11 @@ export function DetailSheet({
         <footer className="space-y-3 border-t-2 border-navy bg-paper px-5 pb-5 pt-4">
           {completed ? (
             <button onClick={() => save({ status: "IN_PROGRESS" })} className="btn-launch w-full bg-paper-2 py-3">
-              ✓ Launched — reopen
+              ✓ Launched · Reopen
             </button>
           ) : (
             <button onClick={() => save({ status: "COMPLETED" })} className="btn-launch w-full py-3 text-[15px]">
-              🚀 Launch it — mark completed
+              🚀 Mark as completed
             </button>
           )}
           <div className="flex gap-2">

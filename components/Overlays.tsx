@@ -35,7 +35,7 @@ export function ConfirmDelete({
         </h2>
         <p className="mt-2 text-center text-[13px] text-muted">
           <span className="font-semibold text-navy">&ldquo;{name}&rdquo;</span> will be permanently deleted. This can&apos;t be
-          undone — use Archive if you just want it off your desk.
+          undone. Use Archive if you just want it off your desk.
         </p>
         <div className="mt-5 flex gap-2">
           <button

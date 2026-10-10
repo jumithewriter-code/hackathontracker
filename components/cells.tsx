@@ -299,7 +299,7 @@ export function DeadlineCell({ value, onSave }: { value: string | null; onSave: 
           value={time}
           onChange={(e) => setTime(e.target.value)}
           className={`${inputBase} w-28`}
-          title="Optional — blank means 11:59 PM"
+          title="Optional. Leave blank for 11:59 PM"
         />
         {value && (
           <button

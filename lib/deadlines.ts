@@ -1,4 +1,4 @@
-// Pure deadline logic — no React, no database — so it's easy to unit test.
+// Pure deadline logic (no React, no database), so it's easy to unit test.
 import type { DisplayStatus, Hackathon } from "./types";
 
 export const HOUR = 60 * 60 * 1000;
@@ -19,8 +19,8 @@ export function msLeft(h: Pick<Hackathon, "deadline">, now: Date): number | null
 
 /**
  * The status to show. Completed always wins. Otherwise a passed deadline is
- * "Missed", and less than 24h left is "Overdue". Nothing here is stored —
- * extend the deadline and the user's own status comes back.
+ * "Missed", and less than 24h left is "Overdue". Nothing here is stored, so if
+ * the deadline is extended, the user's own status comes back.
  */
 export function displayStatus(h: DeadlineFields, now: Date): DisplayStatus {
   if (h.status === "COMPLETED") return "COMPLETED";

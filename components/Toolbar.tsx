@@ -1,6 +1,6 @@
 "use client";
 // Folder-divider tabs for status, plus the search + category bar.
-import { TAB_LABELS, TABS, type Tab } from "@/lib/types";
+import { TAB_LABELS, VISIBLE_TABS, type Tab } from "@/lib/types";
 import { SearchIcon } from "./icons";
 
 export function StatusTabs({
@@ -14,7 +14,7 @@ export function StatusTabs({
 }) {
   return (
     <div role="tablist" aria-label="Filter by status" className="no-scrollbar -mx-4 flex items-end gap-0.5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-      {TABS.map((t) => {
+      {VISIBLE_TABS.map((t) => {
         const active = t === tab;
         const alert = t === "OVERDUE" && counts[t] > 0;
         return (

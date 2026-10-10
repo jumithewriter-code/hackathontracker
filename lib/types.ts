@@ -59,6 +59,9 @@ export const TABS = [
 ] as const;
 export type Tab = (typeof TABS)[number];
 
+/** Tabs shown in the UI. "Not Started" rows still appear under All. */
+export const VISIBLE_TABS: readonly Tab[] = TABS.filter((t) => t !== "NOT_STARTED");
+
 export const TAB_LABELS: Record<Tab, string> = {
   ALL: "All",
   ARCHIVED: "Archived",

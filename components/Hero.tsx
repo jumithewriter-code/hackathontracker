@@ -5,7 +5,7 @@ import { useState } from "react";
 import { DAY, msLeft, nextDeadlines, overdueList, timeLeftLabel, urgency } from "@/lib/deadlines";
 import { formatDeadline } from "@/lib/format";
 import type { Hackathon } from "@/lib/types";
-import { Duck, FlipCountdown, Rocket, StickyNote, type DuckMood } from "./art";
+import { Duck, Rocket, StickyNote, type DuckMood } from "./art";
 import { IndexCard } from "./HackathonCards";
 
 function loadName() {
@@ -146,7 +146,6 @@ function TMinus({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOpen: (
               <span className="block truncate font-display text-[15px] font-bold">{h.name}</span>
               <span className="block truncate font-mono text-[11px] text-navy/70">due {formatDeadline(h.deadline)}</span>
             </span>
-            <FlipCountdown h={h} now={now} size="lg" />
           </button>
         ))}
       </div>

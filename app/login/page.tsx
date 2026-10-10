@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bubble, Mascot } from "@/components/Mascot";
+import { Duck, Rocket, Tape } from "@/components/art";
 
 export default function LoginPage() {
   const [code, setCode] = useState("");
@@ -19,51 +19,37 @@ export default function LoginPage() {
     });
     setBusy(false);
     if (res.ok) window.location.href = "/";
-    else setError("Wrong passcode — try again");
+    else setError("Wrong passcode. The duck is not amused.");
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-ink px-6 py-10 text-cream sm:px-12">
-      <h1 className="relative z-10 text-[52px] font-semibold uppercase leading-[0.95] tracking-tight sm:text-[76px]">
-        Ship
-        <br />
-        <span className="text-leaf">better</span>
-        <br />
-        <span className="text-leaf">hackathons</span>
-        <svg className="mt-2 block" width="150" height="14" viewBox="0 0 150 14" aria-hidden>
-          <path d="M2 7 q9 -8 18 0 t18 0 t18 0 t18 0 t18 0 t18 0 t18 0 t18 0" stroke="var(--color-leaf)" strokeWidth="4" fill="none" strokeLinecap="round" />
-        </svg>
-      </h1>
-
-      <form onSubmit={submit} className="relative z-10 mt-10 w-full max-w-sm space-y-3">
-        <label className="block space-y-2">
-          <span className="text-[13px] text-cream/60">Passcode</span>
-          <input
-            type="password"
-            autoFocus
-            autoComplete="current-password"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="w-full rounded-full bg-cream/10 px-5 py-3.5 text-[15px] text-cream outline-none ring-leaf placeholder:text-cream/30 focus:ring-2"
-            placeholder="••••••••"
-          />
-        </label>
-        {error && <p className="px-2 text-[13px] text-coral">{error}</p>}
-        <button
-          disabled={busy || !code}
-          className="w-full rounded-full bg-leaf px-5 py-3.5 text-[15px] font-medium text-white hover:bg-leaf-dark disabled:opacity-50"
-        >
-          {busy ? "Checking…" : "Let's go"}
-        </button>
-      </form>
-
-      <div className="pointer-events-none absolute -bottom-10 -right-16 flex items-start sm:right-10">
-        <Bubble tail="bottom" className="relative z-10 -mr-6 mt-2 bg-cream-2">
-          It&apos;s more fun
-          <br />
-          building together!
-        </Bubble>
-        <Mascot shape="blob" mood="cheer" size={300} className="opacity-95" />
+    <main className="flex min-h-screen flex-col items-center justify-center px-4 py-10">
+      <div className="relative w-full max-w-sm">
+        <Duck mood={error ? "sweat" : "astronaut"} size={120} className="absolute -top-[88px] left-6 z-10 animate-bob" />
+        <form onSubmit={submit} className="card-paper relative -rotate-1 px-6 pb-6 pt-8">
+          <Tape className="-top-2.5 right-8 rotate-6" />
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted">Hackathon Tracker</p>
+          <h1 className="mt-1 font-display text-[34px] font-extrabold leading-none tracking-tight">Ready for launch?</h1>
+          <div className="my-4 flex items-center gap-2">
+            <span className="h-0 flex-1 border-t-2 border-dashed border-navy/20" />
+            <Rocket width={36} flame />
+          </div>
+          <label className="block">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Passcode</span>
+            <input
+              type="password"
+              autoFocus
+              autoComplete="current-password"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="mt-1 w-full border-b-2 border-navy/30 bg-transparent px-1 py-2 font-mono text-[16px] tracking-widest outline-none focus:border-navy"
+            />
+          </label>
+          {error && <p className="mt-2 font-hand text-[19px] text-rocket">{error}</p>}
+          <button disabled={busy || !code} className="btn-launch mt-6 w-full py-3 text-[15px]">
+            {busy ? "Checking…" : "🚀 Unlock"}
+          </button>
+        </form>
       </div>
     </main>
   );

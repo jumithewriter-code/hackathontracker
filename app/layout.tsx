@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Gochi_Hand, Hanken_Grotesk } from "next/font/google";
+import { Bricolage_Grotesque, Caveat, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-hanken", display: "swap" });
-const gochi = Gochi_Hand({ subsets: ["latin"], weight: "400", variable: "--font-gochi", display: "swap" });
+const dm = DM_Sans({ subsets: ["latin"], variable: "--font-dm", display: "swap" });
+const bricolage = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-bricolage", display: "swap" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
+const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Hackathon Tracker",
@@ -13,12 +15,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f6f7ec",
+  themeColor: "#fbf8f1",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${hanken.variable} ${gochi.variable}`}>
+    <html lang="en" className={`${dm.variable} ${bricolage.variable} ${jetbrains.variable} ${caveat.variable}`}>
       <body className="min-h-screen font-sans text-sm">{children}</body>
     </html>
   );

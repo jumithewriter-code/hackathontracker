@@ -1,26 +1,13 @@
 "use client";
-// Full details for one hackathon (bottom sheet on phones, side panel on desktop).
-// Every field is still click-to-edit.
+// The "mission file" for one hackathon: a clipboard sheet (bottom sheet on
+// phones, side panel on desktop). Every field is still click-to-edit.
 import { useEffect } from "react";
 import { displayStatus, timeLeftLabel, urgency } from "@/lib/deadlines";
 import type { Hackathon } from "@/lib/types";
+import { Duck, FlipCountdown, LaunchTrack, type DuckMood } from "./art";
 import { DateCell, DeadlineCell, LinkCell, ResultCell, StatusCell, TextCell } from "./cells";
 import type { RowActions } from "./HackathonGrid";
-import {
-  ArchiveIcon,
-  BellIcon,
-  CalendarIcon,
-  CloseIcon,
-  FlagIcon,
-  LinkIcon,
-  NoteIcon,
-  RestoreIcon,
-  TagIcon,
-  TrashIcon,
-  TrophyIcon,
-  UserIcon,
-} from "./icons";
-import { Bubble, Mascot, type MascotMood } from "./Mascot";
+import { ArchiveIcon, CloseIcon, RestoreIcon, TrashIcon } from "./icons";
 
 export function DetailSheet({
   h,
@@ -51,81 +38,87 @@ export function DetailSheet({
   const u = urgency(h, now);
   const completed = h.status === "COMPLETED";
 
-  let mood: MascotMood = "happy";
-  let say = "Let's build something great!";
+  let mood: DuckMood = "happy";
+  let say = "Let's build something great.";
   if (completed) {
-    mood = "cheer";
-    say = "Good job!";
+    mood = "party";
+    say = "We launched! 🎉";
   } else if (status === "MISSED") {
     mood = "sleepy";
-    say = "Missed this one. Next time!";
+    say = "This one stayed on the pad.";
   } else if (u === "overdue" || u === "red") {
-    mood = "worried";
-    say = `${timeLeftLabel(h, now)} left — ship it!`;
+    mood = "sweat";
+    say = `${timeLeftLabel(h, now)} left. Ship it!`;
   } else if (!h.deadline) {
-    say = "Set a deadline so I can remind you!";
+    say = "Give me a launch date!";
   } else if (h.status === "CONSIDERING") {
-    say = "Ooh, are we doing this one?";
+    say = "Are we doing this one?";
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end bg-ink/25 sm:items-stretch sm:justify-end" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-end bg-navy/30 sm:items-stretch sm:justify-end" onClick={onClose}>
       <aside
         role="dialog"
         aria-modal="true"
         aria-label={h.name}
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[92vh] w-full animate-rise flex-col overflow-hidden rounded-t-[32px] bg-cream shadow-2xl sm:max-h-none sm:w-[440px] sm:rounded-l-[32px] sm:rounded-tr-none"
+        className="flex max-h-[94vh] w-full animate-rise flex-col overflow-hidden rounded-t-2xl border-2 border-navy bg-paper shadow-2xl sm:max-h-none sm:w-[460px] sm:rounded-none sm:border-y-0 sm:border-r-0"
       >
-        <header className="flex items-center gap-2 px-5 pt-5">
-          <div className="min-w-0 flex-1 text-center text-[17px] font-semibold">
-            <TextCell value={h.name} onSave={(v) => save({ name: v! })} required autoEdit={isNew} className="text-center" />
-          </div>
-          <button onClick={onClose} aria-label="Close" className="rounded-full p-2 text-muted hover:bg-ink/5 hover:text-ink">
-            <CloseIcon />
+        {/* clipboard clip */}
+        <div className="flex items-center gap-2 border-b-2 border-navy bg-navy px-4 py-2 text-paper">
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-duck">Mission file</span>
+          <span className="ml-auto font-mono text-[10px] text-paper/50">#{h.id.slice(-6)}</span>
+          <button onClick={onClose} aria-label="Close" className="rounded p-1 text-paper/70 hover:bg-paper/10 hover:text-paper">
+            <CloseIcon size={16} />
           </button>
-        </header>
+        </div>
 
-        <div className="flex-1 space-y-5 overflow-y-auto px-5 pb-5">
-          <div className="relative flex items-end justify-center gap-1 pt-2">
-            <Mascot
-              shape={completed ? "triangle" : "pentagon"}
-              mood={mood}
-              color={mood === "worried" ? "var(--color-coral)" : mood === "sleepy" ? "var(--color-muted)" : "var(--color-leaf)"}
-              size={110}
-              className="animate-bob"
-            />
-            <Bubble className="mb-20 max-w-[180px] text-[14px]">{say}</Bubble>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-full bg-cream-3 py-1 pl-4 pr-1">
-            <BellIcon size={16} className="shrink-0" />
-            <div className="min-w-0 flex-1 font-medium">
-              <DeadlineCell value={h.deadline} onSave={(v) => save({ deadline: v })} />
+        <div className="flex-1 space-y-5 overflow-y-auto px-5 pb-6 pt-4">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1 font-display text-[22px] font-bold leading-tight">
+              <TextCell value={h.name} onSave={(v) => save({ name: v! })} required autoEdit={isNew} className="whitespace-normal" />
             </div>
+            <FlipCountdown h={h} now={now} size="lg" />
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-[15px] font-semibold">Details</h3>
-            <Row icon={<FlagIcon size={16} />} label="Status">
+          <div className="card-paper relative px-4 pb-3 pt-4">
+            <div className="absolute -top-10 left-3 flex flex-row-reverse items-end gap-1">
+              <span className="mb-6 rounded-md bg-card px-2 py-1 font-hand text-[18px] leading-none shadow-sm">{say}</span>
+              <Duck mood={mood} size={70} className="animate-bob" />
+            </div>
+            <LaunchTrack h={h} now={now} size="lg" />
+          </div>
+
+          <dl className="card-paper divide-y divide-rule px-2">
+            <Field label="Status">
               <StatusCell status={h.status} display={status} onSave={(s) => save({ status: s })} />
-            </Row>
-            <Row icon={<TagIcon size={16} />} label="Category">
-              <TextCell value={h.category} onSave={(v) => save({ category: v })} suggestions={categories} placeholder="e.g. AI" />
-            </Row>
-            <Row icon={<UserIcon size={16} />} label="Organizer">
-              <TextCell value={h.organizer} onSave={(v) => save({ organizer: v })} placeholder="Who's running it?" />
-            </Row>
-            <Row icon={<CalendarIcon size={16} />} label="Starts">
+            </Field>
+            <Field label="Deadline">
+              <DeadlineCell value={h.deadline} onSave={(v) => save({ deadline: v })} />
+            </Field>
+            <Field label="Starts">
               <DateCell value={h.startDate} onSave={(v) => save({ startDate: v })} />
-            </Row>
-            <Row icon={<TrophyIcon size={16} />} label="Prize">
+            </Field>
+            <Field label="Category">
+              <TextCell value={h.category} onSave={(v) => save({ category: v })} suggestions={categories} placeholder="e.g. AI" />
+            </Field>
+            <Field label="Organizer">
+              <TextCell value={h.organizer} onSave={(v) => save({ organizer: v })} placeholder="Who's running it?" />
+            </Field>
+            <Field label="Prize">
               <TextCell value={h.prize} onSave={(v) => save({ prize: v })} placeholder="What's at stake?" />
-            </Row>
-            <Row icon={<LinkIcon size={16} />} label="Link">
+            </Field>
+            <Field label="Link">
               <LinkCell value={h.link} onSave={(v) => save({ link: v })} />
-            </Row>
-            <Row icon={<NoteIcon size={16} />} label="Notes" top>
+            </Field>
+            <Field label="Result">
+              <ResultCell value={h.result} detail={h.resultDetail} dim={!completed} onSave={save} />
+            </Field>
+          </dl>
+
+          <div className="relative bg-hl-yellow px-3 pb-3 pt-2" style={{ boxShadow: "0 8px 16px -12px rgba(28,37,65,.5)" }}>
+            <p className="px-2 font-mono text-[10px] uppercase tracking-[0.2em] text-navy/60">Notes</p>
+            <div className="font-hand text-[19px] leading-snug">
               <TextCell
                 value={h.notes}
                 onSave={(v) => save({ notes: v })}
@@ -133,40 +126,31 @@ export function DetailSheet({
                 placeholder="Ideas, teammates, progress…"
                 className="whitespace-pre-wrap"
               />
-            </Row>
-            <Row icon={<TrophyIcon size={16} />} label="Result">
-              <ResultCell value={h.result} detail={h.resultDetail} dim={!completed} onSave={save} />
-            </Row>
+            </div>
           </div>
         </div>
 
-        <footer className="space-y-2 border-t border-line/60 bg-cream px-5 pb-5 pt-3">
+        <footer className="space-y-3 border-t-2 border-navy bg-paper px-5 pb-5 pt-4">
           {completed ? (
-            <button
-              onClick={() => save({ status: "IN_PROGRESS" })}
-              className="w-full rounded-full bg-cream-3 py-3.5 text-[15px] font-medium hover:bg-line"
-            >
-              ✓ Completed — reopen
+            <button onClick={() => save({ status: "IN_PROGRESS" })} className="btn-launch w-full bg-paper-2 py-3">
+              ✓ Launched — reopen
             </button>
           ) : (
-            <button
-              onClick={() => save({ status: "COMPLETED" })}
-              className="w-full rounded-full bg-leaf py-3.5 text-[15px] font-medium text-white hover:bg-leaf-dark"
-            >
-              Mark as completed
+            <button onClick={() => save({ status: "COMPLETED" })} className="btn-launch w-full py-3 text-[15px]">
+              🚀 Launch it — mark completed
             </button>
           )}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex gap-2">
             <button
               onClick={() => actions.toggleArchive(h)}
-              className="flex items-center justify-center gap-1.5 rounded-full bg-cream-2 py-2.5 font-medium hover:bg-cream-3"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border-2 border-navy/20 py-2.5 font-medium hover:border-navy/50"
             >
               {h.archivedAt ? <RestoreIcon size={16} /> : <ArchiveIcon size={16} />}
               {h.archivedAt ? "Restore" : "Archive"}
             </button>
             <button
               onClick={() => actions.remove(h)}
-              className="flex items-center justify-center gap-1.5 rounded-full bg-coral/10 py-2.5 font-medium text-coral hover:bg-coral/20"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border-2 border-rocket/30 py-2.5 font-medium text-rocket hover:border-rocket hover:bg-rocket/5"
             >
               <TrashIcon size={16} />
               Delete
@@ -178,14 +162,11 @@ export function DetailSheet({
   );
 }
 
-function Row({ icon, label, top, children }: { icon: React.ReactNode; label: string; top?: boolean; children: React.ReactNode }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className={`flex gap-2 rounded-2xl bg-cream-2 py-1.5 pl-3 pr-1.5 ${top ? "items-start" : "items-center"}`}>
-      <span className={`flex w-24 shrink-0 items-center gap-2 text-[13px] text-muted ${top ? "pt-2" : ""}`}>
-        {icon}
-        {label}
-      </span>
-      <div className="min-w-0 flex-1">{children}</div>
+    <div className="flex items-center gap-2 py-1">
+      <dt className="w-24 shrink-0 px-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">{label}</dt>
+      <dd className="min-w-0 flex-1">{children}</dd>
     </div>
   );
 }

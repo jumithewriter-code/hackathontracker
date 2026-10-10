@@ -3,7 +3,7 @@
 // focused) to edit. Enter / clicking away saves, Esc cancels.
 import { useEffect, useRef, useState } from "react";
 import { formatDate, formatDeadline, hostname, joinLocal, splitLocal } from "@/lib/format";
-import { STATUS_TONE } from "./tones";
+import { STAMP } from "./tones";
 import {
   RESULT_LABELS,
   RESULTS,
@@ -15,9 +15,9 @@ import {
 } from "@/lib/types";
 
 const cellButton =
-  "block w-full min-h-8 cursor-text truncate rounded-lg px-2 py-1.5 text-left hover:bg-ink/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf";
+  "block w-full min-h-8 cursor-text truncate rounded-md px-2 py-1.5 text-left hover:bg-navy/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy";
 const inputBase =
-  "w-full rounded-lg border border-leaf bg-white px-2 py-1.5 text-[13px] outline-none ring-4 ring-leaf/15";
+  "w-full rounded-md border border-navy bg-white px-2 py-1.5 text-[13px] outline-none ring-4 ring-duck/50";
 
 function Placeholder({ text = "—" }: { text?: string }) {
   return <span className="text-muted/60">{text}</span>;
@@ -130,7 +130,7 @@ export function LinkCell({ value, onSave }: { value: string | null; onSave: (v: 
           value={value}
           onSave={onSave}
           placeholder="Add link"
-          display={value ? <span className="text-ink/70 underline decoration-line underline-offset-2">{hostname(value)}</span> : undefined}
+          display={value ? <span className="text-teal underline decoration-teal/30 underline-offset-2">{hostname(value)}</span> : undefined}
         />
       </div>
       {value && (
@@ -138,7 +138,7 @@ export function LinkCell({ value, onSave }: { value: string | null; onSave: (v: 
           href={value}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 rounded-lg p-1 text-leaf-dark hover:bg-leaf/10"
+          className="shrink-0 rounded-md p-1 text-teal hover:bg-teal/10"
           aria-label="Open link in new tab"
         >
           ↗
@@ -150,19 +150,11 @@ export function LinkCell({ value, onSave }: { value: string | null; onSave: (v: 
 
 // ─── Status ──────────────────────────────────────────────────────────────────
 
-const STATUS_STYLES: Record<DisplayStatus, string> = {
-  CONSIDERING: "bg-berry/10 text-berry",
-  NOT_STARTED: "bg-cream-3 text-ink/70",
-  IN_PROGRESS: "bg-sky/10 text-sky",
-  COMPLETED: "bg-leaf/15 text-leaf-dark",
-  OVERDUE: "bg-coral text-white",
-  MISSED: "bg-cream-3 text-muted line-through decoration-muted/60",
-};
-
 export function StatusBadge({ status }: { status: DisplayStatus }) {
   return (
-    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}>
-      <span aria-hidden>{STATUS_TONE[status].symbol}</span>
+    <span
+      className={`inline-block -rotate-2 whitespace-nowrap rounded-[4px] border-2 px-1.5 py-px font-mono text-[10px] font-bold uppercase tracking-wider ${STAMP[status]}`}
+    >
       {STATUS_LABELS[status]}
     </span>
   );
@@ -183,7 +175,7 @@ export function StatusCell({
 }) {
   const auto = display !== status;
   return (
-    <label className="relative flex min-h-8 cursor-pointer items-center gap-1 rounded-lg px-2 py-1 hover:bg-ink/5 focus-within:ring-2 focus-within:ring-leaf">
+    <label className="relative flex min-h-8 cursor-pointer items-center gap-1 rounded-md px-2 py-1 hover:bg-navy/5 focus-within:ring-2 focus-within:ring-navy">
       <StatusBadge status={display} />
       {auto && <span className="truncate text-xs text-muted">({STATUS_LABELS[status]})</span>}
       <span className="ml-auto text-[10px] text-muted">▾</span>
@@ -222,7 +214,7 @@ export function ResultCell({
         aria-label="Result"
         value={value ?? ""}
         onChange={(e) => onSave({ result: (e.target.value || null) as Result | null })}
-        className="min-h-8 shrink-0 cursor-pointer rounded-lg bg-transparent px-1 py-1 hover:bg-ink/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
+        className="min-h-8 shrink-0 cursor-pointer rounded-md bg-transparent px-1 py-1 hover:bg-navy/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy"
       >
         <option value="">—</option>
         {RESULTS.map((r) => (
@@ -314,7 +306,7 @@ export function DeadlineCell({ value, onSave }: { value: string | null; onSave: 
             type="button"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => commit(null)}
-            className="rounded-lg px-1.5 py-1 text-xs text-muted hover:bg-ink/5"
+            className="rounded-md px-1.5 py-1 text-xs text-muted hover:bg-navy/5"
           >
             Clear
           </button>

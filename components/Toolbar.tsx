@@ -1,5 +1,5 @@
 "use client";
-
+// Folder-divider tabs for status, plus the search + category bar.
 import { TAB_LABELS, TABS, type Tab } from "@/lib/types";
 import { SearchIcon } from "./icons";
 
@@ -13,7 +13,7 @@ export function StatusTabs({
   onChange: (t: Tab) => void;
 }) {
   return (
-    <div role="tablist" aria-label="Filter by status" className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+    <div role="tablist" aria-label="Filter by status" className="no-scrollbar -mx-4 flex items-end gap-0.5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       {TABS.map((t) => {
         const active = t === tab;
         const alert = t === "OVERDUE" && counts[t] > 0;
@@ -23,15 +23,15 @@ export function StatusTabs({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(t)}
-            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf ${
-              active ? "bg-ink text-cream" : "bg-cream-2 text-ink/75 hover:bg-cream-3"
+            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-t-lg border-2 border-b-0 px-3.5 text-[13px] font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-navy ${
+              active
+                ? "relative z-10 -mb-0.5 border-navy bg-card pb-2.5 pt-2.5 text-navy"
+                : "border-navy/15 bg-paper-2 pb-1.5 pt-1.5 text-navy/60 hover:bg-card hover:text-navy"
             }`}
           >
             {TAB_LABELS[t]}
             <span
-              className={`min-w-5 rounded-full px-1.5 text-center text-[11px] tabular-nums ${
-                alert ? "bg-coral text-white" : active ? "bg-cream/15 text-cream" : "bg-cream-3 text-muted"
-              }`}
+              className={`font-mono text-[11px] tabular-nums ${alert ? "rounded bg-rocket px-1 text-white" : active ? "text-rocket" : "text-muted"}`}
             >
               {counts[t]}
             </span>
@@ -57,7 +57,7 @@ export function FilterBar({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <label className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-cream-2 px-4 py-2.5 focus-within:ring-2 focus-within:ring-leaf sm:max-w-sm">
+      <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border-2 border-navy/15 bg-card px-3 py-2 focus-within:border-navy sm:max-w-sm">
         <SearchIcon size={16} className="shrink-0 text-muted" />
         <input
           type="search"
@@ -72,7 +72,7 @@ export function FilterBar({
         aria-label="Filter by category"
         value={category ?? ""}
         onChange={(e) => onCategory(e.target.value || null)}
-        className="cursor-pointer rounded-full bg-cream-2 px-4 py-2.5 text-[14px] outline-none focus-visible:ring-2 focus-visible:ring-leaf"
+        className="cursor-pointer rounded-xl border-2 border-navy/15 bg-card px-3 py-2 text-[14px] outline-none focus-visible:border-navy"
       >
         <option value="">All categories</option>
         {categories.map((c) => (
@@ -87,7 +87,7 @@ export function FilterBar({
             onQ("");
             onCategory(null);
           }}
-          className="rounded-full px-3 py-2 text-[13px] text-muted hover:bg-ink/5 hover:text-ink"
+          className="rounded-xl px-3 py-2 text-[13px] font-medium text-muted hover:bg-navy/5 hover:text-navy"
         >
           Clear
         </button>

@@ -8,9 +8,9 @@ import { DetailSheet } from "./DetailSheet";
 import { HackathonCards } from "./HackathonCards";
 import { HackathonGrid, type RowActions } from "./HackathonGrid";
 import { Hero } from "./Hero";
+import { Duck } from "./art";
 import { ListIcon, LogoutIcon, PlusIcon, TableIcon } from "./icons";
-import { Mascot } from "./Mascot";
-import { Celebration, ConfirmDelete } from "./Overlays";
+import { ConfirmDelete, Liftoff } from "./Overlays";
 import { FilterBar, StatusTabs } from "./Toolbar";
 
 const DEFAULT_CATEGORIES = ["AI", "Fintech", "Web3", "General"];
@@ -137,84 +137,102 @@ export function Tracker({ initialData }: { initialData: Hackathon[] }) {
   };
 
   const showTable = isDesktop && view === "table";
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
+  };
 
   return (
-    <div className="mx-auto max-w-[1500px] space-y-8 px-4 pb-32 pt-8 sm:px-8">
-      {error && (
-        <p className="rounded-2xl bg-coral-soft px-4 py-3 text-[13px] text-coral">
-          Couldn&apos;t load hackathons: {error.message}
-        </p>
-      )}
-
-      <Hero list={active} now={now} onOpen={(h) => setOpenId(h.id)} />
-
-      <section className="space-y-3" aria-label="All hackathons">
-        <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-xl font-semibold tracking-tight">
-            Your hackathons
-            {isFetching && <span className="ml-2 text-xs font-normal text-muted">syncing…</span>}
-          </h2>
-          {showTable && <span className="hidden text-xs text-muted lg:inline">Click any cell to edit · Enter saves · Esc cancels</span>}
-        </div>
-        <StatusTabs tab={tab} counts={counts} onChange={setTab} />
-        <FilterBar q={q} onQ={setQ} category={category} onCategory={setCategory} categories={usedCategories} />
-
-        {rows.length === 0 ? (
-          <div className="flex flex-col items-center rounded-3xl bg-cream-2 px-6 py-10 text-center">
-            <Mascot mood="sleepy" size={90} />
-            <p className="mt-2 text-[14px] text-muted">
-              {list.length === 0 ? "No hackathons yet — tap “New hackathon” to add one." : "Nothing matches these filters."}
-            </p>
+    <div className="min-h-screen">
+      {/* Top bar */}
+      <header className="sticky top-0 z-40 border-b-2 border-navy bg-paper/95 backdrop-blur">
+        <div className="mx-auto flex max-w-[1500px] items-center gap-3 px-4 py-2.5 sm:px-8">
+          <Duck size={34} />
+          <span className="font-display text-[17px] font-extrabold tracking-tight">Hackathon Tracker</span>
+          {isFetching && <span className="font-mono text-[10px] uppercase tracking-widest text-muted">syncing…</span>}
+          <div className="ml-auto flex items-center gap-1">
+            {isDesktop && (
+              <button
+                onClick={() => changeView(view === "table" ? "cards" : "table")}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] font-medium text-navy/70 hover:bg-navy/5 hover:text-navy"
+              >
+                {view === "table" ? <ListIcon size={16} /> : <TableIcon size={16} />}
+                {view === "table" ? "Index cards" : "Notebook"}
+              </button>
+            )}
+            <button onClick={logout} aria-label="Log out" title="Log out" className="rounded-lg p-2 text-navy/60 hover:bg-navy/5 hover:text-navy">
+              <LogoutIcon size={18} />
+            </button>
+            {isDesktop && (
+              <button onClick={addHackathon} disabled={create.isPending} className="btn-launch ml-2 py-2 text-[14px]">
+                <PlusIcon size={16} /> New hackathon
+              </button>
+            )}
           </div>
-        ) : showTable ? (
-          <HackathonGrid
-            rows={rows}
-            now={now}
-            sort={sort}
-            onSort={onSort}
-            categories={categories}
-            actions={actions}
-            onOpen={(h) => setOpenId(h.id)}
-          />
-        ) : (
-          <HackathonCards rows={rows} now={now} actions={actions} onOpen={(h) => setOpenId(h.id)} />
-        )}
-      </section>
+        </div>
+      </header>
 
-      {/* Floating bottom bar */}
-      <nav
-        aria-label="Main"
-        className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-1 rounded-full bg-ink p-1.5 shadow-xl shadow-ink/20"
-      >
+      <main className="mx-auto max-w-[1500px] space-y-10 px-4 pb-28 pt-8 sm:px-8">
+        {error && (
+          <p className="rounded-md border-2 border-rocket bg-hl-pink px-4 py-3 text-[13px] text-rocket">
+            Couldn&apos;t load hackathons: {error.message}
+          </p>
+        )}
+
+        <Hero list={active} now={now} onOpen={(h) => setOpenId(h.id)} />
+
+        <section className="space-y-4" aria-label="All hackathons">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <h2 className="font-display text-2xl font-bold tracking-tight">All hackathons</h2>
+            <FilterBar q={q} onQ={setQ} category={category} onCategory={setCategory} categories={usedCategories} />
+          </div>
+
+          <div>
+            <StatusTabs tab={tab} counts={counts} onChange={setTab} />
+            <div className="border-t-2 border-navy">
+              {rows.length === 0 ? (
+                <div className="card-paper flex flex-col items-center rounded-t-none px-6 py-10 text-center">
+                  <Duck mood="sleepy" size={96} />
+                  <p className="mt-2 font-hand text-[22px] text-navy/80">
+                    {list.length === 0 ? "Empty desk! Add your first hackathon." : "Nothing matches these filters."}
+                  </p>
+                </div>
+              ) : showTable ? (
+                <HackathonGrid
+                  rows={rows}
+                  now={now}
+                  sort={sort}
+                  onSort={onSort}
+                  categories={categories}
+                  actions={actions}
+                  onOpen={(h) => setOpenId(h.id)}
+                />
+              ) : (
+                <div className="pt-5">
+                  <HackathonCards rows={rows} now={now} actions={actions} onOpen={(h) => setOpenId(h.id)} />
+                </div>
+              )}
+            </div>
+            {showTable && (
+              <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted">
+                Click any cell to edit · Enter saves · Esc cancels · yellow highlighter &lt; 7 days · pink &lt; 3 days
+              </p>
+            )}
+          </div>
+        </section>
+      </main>
+
+      {/* Phone: floating launch button */}
+      {!isDesktop && (
         <button
           onClick={addHackathon}
           disabled={create.isPending}
-          className="flex items-center gap-1.5 rounded-full bg-leaf px-5 py-3 text-[14px] font-medium text-white hover:bg-leaf-dark disabled:opacity-60"
+          aria-label="New hackathon"
+          className="btn-launch fixed bottom-5 right-5 z-50 size-14 rounded-2xl p-0"
         >
-          <PlusIcon size={16} /> New hackathon
+          <PlusIcon size={24} />
         </button>
-        {isDesktop && (
-          <button
-            onClick={() => changeView(view === "table" ? "cards" : "table")}
-            aria-label={view === "table" ? "Switch to card view" : "Switch to table view"}
-            title={view === "table" ? "Card view" : "Table view"}
-            className="rounded-full p-3 text-cream/80 hover:bg-cream/10 hover:text-cream"
-          >
-            {view === "table" ? <ListIcon /> : <TableIcon />}
-          </button>
-        )}
-        <button
-          onClick={async () => {
-            await fetch("/api/auth/logout", { method: "POST" });
-            window.location.href = "/login";
-          }}
-          aria-label="Log out"
-          title="Log out"
-          className="rounded-full p-3 text-cream/80 hover:bg-cream/10 hover:text-cream"
-        >
-          <LogoutIcon />
-        </button>
-      </nav>
+      )}
 
       {opened && (
         <DetailSheet
@@ -243,14 +261,15 @@ export function Tracker({ initialData }: { initialData: Hackathon[] }) {
         />
       )}
 
-      {celebrate && <Celebration name={celebrate} onDone={() => setCelebrate(null)} />}
+      {celebrate && <Liftoff name={celebrate} onDone={() => setCelebrate(null)} />}
 
       {toast && (
         <div
           role="status"
-          className={`fixed bottom-24 left-1/2 z-[90] flex -translate-x-1/2 animate-rise items-center gap-3 whitespace-nowrap rounded-full px-5 py-2.5 text-[13px] shadow-lg ${
-            toast.tone === "error" ? "bg-coral text-white" : "bg-ink text-cream"
+          className={`fixed bottom-5 left-1/2 z-[90] flex -translate-x-1/2 animate-rise items-center gap-3 whitespace-nowrap rounded-lg border-2 border-navy px-4 py-2.5 font-mono text-[12px] ${
+            toast.tone === "error" ? "bg-rocket text-white" : "bg-navy text-paper"
           }`}
+          style={{ boxShadow: "0 4px 0 rgba(28,37,65,.35)" }}
         >
           {toast.message}
           {toast.undo && (
@@ -259,7 +278,7 @@ export function Tracker({ initialData }: { initialData: Hackathon[] }) {
                 toast.undo!();
                 setToast(null);
               }}
-              className="font-semibold text-mint underline underline-offset-2"
+              className="font-bold uppercase text-duck underline underline-offset-2"
             >
               Undo
             </button>

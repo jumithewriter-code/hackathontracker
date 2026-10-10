@@ -1,21 +1,24 @@
 "use client";
-// Top of the page: greeting, week strip with deadline markers, mascot tip, and the
-// Overdue + Next 3 deadlines lists.
+// Top of the page: greeting, the duck's sticky note, the T-minus 24h hazard
+// block, the next 3 launches, and a two-week ruler of deadlines.
 import { useState } from "react";
-import { msLeft, nextDeadlines, overdueList, timeLeftLabel, urgency, DAY } from "@/lib/deadlines";
+import { DAY, msLeft, nextDeadlines, overdueList, timeLeftLabel, urgency } from "@/lib/deadlines";
 import { formatDeadline } from "@/lib/format";
 import type { Hackathon } from "@/lib/types";
-import { HackathonRow } from "./HackathonCards";
-import { Bubble, Mascot, type MascotMood } from "./Mascot";
-
-const WEEKDAYS = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+import { Duck, FlipCountdown, Rocket, StickyNote, type DuckMood } from "./art";
+import { IndexCard } from "./HackathonCards";
 
 function loadName() {
   try {
-    return localStorage.getItem("ht:name") || "hacker";
+    return localStorage.getItem("ht:name") || "builder";
   } catch {
-    return "hacker";
+    return "builder";
   }
+}
+
+function greeting(now: Date) {
+  const h = now.getHours();
+  return h < 5 ? "Burning the midnight oil" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
 }
 
 export function Hero({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOpen: (h: Hackathon) => void }) {
@@ -25,7 +28,7 @@ export function Hero({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOp
   const [editingName, setEditingName] = useState(false);
 
   const saveName = (v: string) => {
-    const n = v.trim() || "hacker";
+    const n = v.trim() || "builder";
     setName(n);
     setEditingName(false);
     try {
@@ -33,149 +36,175 @@ export function Hero({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOp
     } catch {}
   };
 
-  // Mascot reacts to the most urgent thing on the board.
+  const inFlight = list.filter((h) => h.status !== "COMPLETED" && (msLeft(h, now) ?? -1) > 0).length;
+
+  // The duck reacts to the most urgent thing on the desk.
+  let mood: DuckMood = "happy";
+  let note: React.ReactNode;
   const soonest = next[0];
-  let mood: MascotMood = "happy";
-  let tip: React.ReactNode;
   if (overdue.length) {
-    mood = "worried";
-    tip = (
+    mood = "sweat";
+    note = (
       <>
-        {overdue[0].name} is due in {timeLeftLabel(overdue[0], now)}. Ship it!
+        {overdue[0].name} launches in {timeLeftLabel(overdue[0], now)}. Ship it!
       </>
     );
+  } else if (soonest && urgency(soonest, now) === "red") {
+    mood = "sweat";
+    note = <>{soonest.name} is close — {timeLeftLabel(soonest, now)} to go.</>;
   } else if (soonest) {
-    const u = urgency(soonest, now);
-    mood = u === "red" ? "worried" : "happy";
-    tip =
-      u === "red" ? (
-        <>Heads up — {soonest.name} is due in {timeLeftLabel(soonest, now)}!</>
-      ) : (
-        <>Next up: {soonest.name} in {timeLeftLabel(soonest, now)}. You got this!</>
-      );
+    note = <>Next launch: {soonest.name}, {timeLeftLabel(soonest, now)} away. Quack on!</>;
   } else {
     mood = "sleepy";
-    tip = <>No deadlines coming up. Time to find your next hackathon!</>;
+    note = <>Nothing on the launch pad. Find a new hackathon?</>;
   }
 
   return (
-    <section className="space-y-5">
-      <h1 className="text-[34px] leading-tight tracking-tight sm:text-[40px]">
-        Hey,{" "}
-        {editingName ? (
-          <input
-            autoFocus
-            defaultValue={name}
-            onBlur={(e) => saveName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") saveName((e.target as HTMLInputElement).value);
-              if (e.key === "Escape") setEditingName(false);
-            }}
-            aria-label="Your name"
-            className="w-48 rounded-xl border border-leaf bg-white px-2 font-bold outline-none"
-          />
-        ) : (
-          <button
-            onClick={() => setEditingName(true)}
-            title="Click to change your name"
-            className="rounded-xl font-bold hover:bg-ink/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
-          >
-            {name}!
-          </button>
-        )}
-      </h1>
+    <section className="space-y-8">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        {/* left: greeting + duck note */}
+        <div className="space-y-6">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+              {now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+            </p>
+            <h1 className="mt-1 font-display text-[34px] font-bold leading-[1.05] tracking-tight sm:text-[44px]">
+              {greeting(now)},{" "}
+              {editingName ? (
+                <input
+                  autoFocus
+                  defaultValue={name}
+                  onBlur={(e) => saveName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveName((e.target as HTMLInputElement).value);
+                    if (e.key === "Escape") setEditingName(false);
+                  }}
+                  aria-label="Your name"
+                  className="w-44 border-b-4 border-duck bg-transparent outline-none"
+                />
+              ) : (
+                <button
+                  onClick={() => setEditingName(true)}
+                  title="Click to change your name"
+                  className="relative whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+                >
+                  <span className="relative z-10">{name}.</span>
+                  <span className="absolute inset-x-0 bottom-1 z-0 h-3 -rotate-1 bg-duck/70" aria-hidden />
+                </button>
+              )}
+            </h1>
+            <p className="mt-2 font-mono text-xs text-muted">
+              {inFlight} in flight · {overdue.length} in T-minus · {list.filter((h) => h.status === "COMPLETED").length} launched
+            </p>
+          </div>
 
-      <WeekStrip list={list} now={now} />
-
-      <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <div className="flex items-end gap-2">
-          <Mascot
-            mood={mood}
-            color={mood === "worried" ? "var(--color-coral)" : "var(--color-leaf)"}
-            size={118}
-            className="shrink-0 animate-bob"
-          />
-          <Bubble className="mb-16 max-w-[260px]">{tip}</Bubble>
+          <div className="relative max-w-sm pr-16">
+            <StickyNote className="-rotate-2">{note}</StickyNote>
+            <Duck mood={mood} size={112} className="absolute -right-2 -top-14 animate-bob" />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          {overdue.length > 0 && (
-            <div className="space-y-2" aria-label="Overdue — due within 24 hours">
-              <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-coral">
-                <span className="inline-block size-1.5 animate-pulse rounded-full bg-coral" /> Overdue — due within 24
-                hours
-              </h2>
-              {overdue.map((h) => (
-                <HackathonRow key={h.id} h={h} now={now} onOpen={() => onOpen(h)} />
-              ))}
-            </div>
-          )}
-          <h2 className="pt-1 text-xs font-semibold uppercase tracking-wider text-muted">Next deadlines</h2>
-          {next.length === 0 ? (
-            <p className="rounded-2xl bg-cream-2 px-4 py-4 text-[13px] text-muted">Nothing on the horizon.</p>
-          ) : (
-            next.map((h) => <HackathonRow key={h.id} h={h} now={now} onOpen={() => onOpen(h)} />)
-          )}
+        {/* right: T-minus + next launches */}
+        <div className="space-y-5">
+          {overdue.length > 0 && <TMinus list={overdue} now={now} onOpen={onOpen} />}
+          <div>
+            <h2 className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">Launch schedule · next 3</h2>
+            {next.length === 0 ? (
+              <p className="card-paper px-4 py-5 text-[13px] text-muted">No upcoming deadlines.</p>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-3">
+                {next.map((h, i) => (
+                  <IndexCard key={h.id} h={h} now={now} onOpen={() => onOpen(h)} tilt={[-0.6, 0.4, -0.2][i]} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      <LaunchRuler list={list} now={now} />
     </section>
   );
 }
 
-/** Two weeks of dates. Days with a deadline get a filled circle and a coloured dot. */
-function WeekStrip({ list, now }: { list: Hackathon[]; now: Date }) {
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
-  const days = Array.from({ length: 17 }, (_, i) => new Date(start.getTime() + i * DAY));
-  const key = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+/** Hazard-taped block for anything due within 24 hours. */
+function TMinus({ list, now, onOpen }: { list: Hackathon[]; now: Date; onOpen: (h: Hackathon) => void }) {
+  return (
+    <section aria-label="Overdue — due within 24 hours" className="overflow-hidden rounded-md border-2 border-navy bg-card">
+      <div className="hazard h-2.5" />
+      <div className="space-y-2 p-3">
+        <h2 className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-rocket">
+          <span className="inline-block size-2 animate-pulse rounded-full bg-rocket" /> T-minus 24h · overdue
+        </h2>
+        {list.map((h) => (
+          <button
+            key={h.id}
+            onClick={() => onOpen(h)}
+            className="flex w-full items-center gap-3 rounded-md bg-hl-red/60 px-3 py-2 text-left hover:bg-hl-red focus:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-display text-[15px] font-bold">{h.name}</span>
+              <span className="block truncate font-mono text-[11px] text-navy/70">due {formatDeadline(h.deadline)}</span>
+            </span>
+            <FlipCountdown h={h} now={now} size="lg" />
+          </button>
+        ))}
+      </div>
+      <div className="hazard h-2.5" />
+    </section>
+  );
+}
 
+/** A ruler of the next two weeks; rockets mark deadline days. */
+function LaunchRuler({ list, now }: { list: Hackathon[]; now: Date }) {
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2);
+  const days = Array.from({ length: 16 }, (_, i) => new Date(start.getTime() + i * DAY));
+  const key = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
   const byDay = new Map<string, Hackathon[]>();
   for (const h of list) {
-    if (!h.deadline || h.archivedAt || h.status === "COMPLETED") continue;
+    if (!h.deadline || h.status === "COMPLETED") continue;
     const k = key(new Date(h.deadline));
     byDay.set(k, [...(byDay.get(k) ?? []), h]);
   }
   const todayKey = key(now);
 
   return (
-    <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 sm:mx-0 sm:px-0" aria-label="Deadlines this fortnight">
-      {days.map((d) => {
-        const k = key(d);
-        const items = byDay.get(k) ?? [];
-        const isToday = k === todayKey;
-        const worst = items.reduce<"coral" | "sun" | "leaf" | null>((acc, h) => {
-          const ms = msLeft(h, now) ?? 0;
-          if (ms < 3 * DAY) return "coral";
-          if (ms < 7 * DAY && acc !== "coral") return "sun";
-          return acc ?? "leaf";
-        }, null);
-        const title = items.length
-          ? items.map((h) => `${h.name} — ${formatDeadline(h.deadline)}`).join("\n")
-          : undefined;
-        return (
-          <div
-            key={k}
-            title={title}
-            className={`flex w-11 shrink-0 flex-col items-center gap-1.5 rounded-full py-2 ${isToday ? "bg-ink text-cream" : ""}`}
-          >
-            <span className={`text-[11px] font-medium ${isToday ? "text-cream" : "text-muted"}`}>
-              {WEEKDAYS[d.getDay()]}
-            </span>
-            <span
-              className={`flex size-8 items-center justify-center rounded-full text-[13px] font-semibold ${
-                isToday ? "" : items.length ? "bg-cream-3" : ""
-              }`}
+    <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" aria-label="Deadlines over the next two weeks">
+      <div className="relative flex min-w-[720px] rounded-md border-2 border-navy bg-duck/90">
+        {days.map((d, i) => {
+          const k = key(d);
+          const items = byDay.get(k) ?? [];
+          const isToday = k === todayKey;
+          const isPast = d < start || (d.getTime() < new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime());
+          const u = items.length ? items.map((h) => urgency(h, now)) : [];
+          const grey = u.length > 0 && u.every((x) => x === "missed");
+          return (
+            <div
+              key={k}
+              title={items.length ? items.map((h) => `${h.name} — ${formatDeadline(h.deadline)}`).join("\n") : undefined}
+              className={`relative flex flex-1 flex-col items-center pb-1.5 pt-9 ${i ? "border-l border-navy/30" : ""} ${isPast ? "opacity-55" : ""}`}
             >
-              {d.getDate()}
-            </span>
-            <span
-              className={`size-1.5 rounded-full ${
-                worst === "coral" ? "bg-coral" : worst === "sun" ? "bg-sun" : worst === "leaf" ? "bg-leaf" : "bg-transparent"
-              }`}
-              aria-label={items.length ? `${items.length} deadline${items.length > 1 ? "s" : ""}` : undefined}
-            />
-          </div>
-        );
-      })}
+              {/* ruler ticks */}
+              <span className="absolute left-1/2 top-0 h-3 w-px bg-navy/60" />
+              <span className="absolute left-1/4 top-0 h-1.5 w-px bg-navy/30" />
+              <span className="absolute left-3/4 top-0 h-1.5 w-px bg-navy/30" />
+              {items.length > 0 && (
+                <span className="absolute top-3.5 -rotate-90" aria-label={`${items.length} deadline${items.length > 1 ? "s" : ""}`}>
+                  <Rocket width={26} grey={grey} />
+                </span>
+              )}
+              <span className="mt-2 font-mono text-[9px] uppercase tracking-widest text-navy/70">
+                {d.toLocaleDateString(undefined, { weekday: "short" })}
+              </span>
+              <span
+                className={`font-mono text-[15px] font-bold ${isToday ? "rounded bg-navy px-1.5 text-duck" : "text-navy"}`}
+              >
+                {d.getDate()}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,42 +1,31 @@
 import type { Urgency } from "@/lib/deadlines";
 import type { DisplayStatus } from "@/lib/types";
 
-/** Row/card background per deadline urgency (opaque, so the sticky Name column matches). */
+/** Highlighter-pen row tint per deadline urgency (opaque, so sticky cells match). */
 export const ROW_TONE: Record<Urgency, string> = {
-  overdue: "bg-coral-soft",
-  red: "bg-[#fdeeec]",
-  yellow: "bg-sun-soft",
-  missed: "bg-cream-2 text-muted",
-  none: "bg-cream",
+  overdue: "bg-hl-red",
+  red: "bg-hl-pink",
+  yellow: "bg-hl-yellow",
+  missed: "bg-paper text-muted",
+  none: "bg-card",
 };
 
-/** Card background (cards sit on cream, so "none" is one step darker). */
-export const CARD_TONE: Record<Urgency, string> = { ...ROW_TONE, none: "bg-cream-2" };
-
-/** Coloured left edge on the first cell. */
-export const EDGE_TONE: Record<Urgency, string> = {
-  overdue: "border-l-coral",
-  red: "border-l-coral/60",
-  yellow: "border-l-sun",
-  missed: "border-l-line",
-  none: "border-l-transparent",
+/** Rubber-stamp status styles: outlined, uppercase mono, colour per status. */
+export const STAMP: Record<DisplayStatus, string> = {
+  CONSIDERING: "text-lav border-lav",
+  NOT_STARTED: "text-slate border-slate",
+  IN_PROGRESS: "text-teal border-teal",
+  COMPLETED: "text-green border-green",
+  OVERDUE: "text-white border-rocket bg-rocket",
+  MISSED: "text-muted border-muted/60 line-through",
 };
 
-/** Countdown text colour. */
-export const COUNT_TONE: Record<Urgency, string> = {
-  overdue: "text-coral",
-  red: "text-coral",
-  yellow: "text-[#a8930f]",
-  missed: "text-muted",
-  none: "text-ink",
-};
-
-/** Small status line: symbol + colour, like the "✱ New / ≈ Skip / ✓ Done" labels. */
-export const STATUS_TONE: Record<DisplayStatus, { symbol: string; className: string }> = {
-  CONSIDERING: { symbol: "✱", className: "text-berry" },
-  NOT_STARTED: { symbol: "○", className: "text-muted" },
-  IN_PROGRESS: { symbol: "≈", className: "text-sky" },
-  COMPLETED: { symbol: "✓", className: "text-leaf-dark" },
-  OVERDUE: { symbol: "!", className: "text-coral font-semibold" },
-  MISSED: { symbol: "✕", className: "text-muted" },
+/** Tape colour on index cards, keyed by status. */
+export const TAPE: Record<DisplayStatus, string> = {
+  CONSIDERING: "bg-lav/30",
+  NOT_STARTED: "bg-slate/25",
+  IN_PROGRESS: "bg-teal/30",
+  COMPLETED: "bg-green/30",
+  OVERDUE: "bg-rocket/45",
+  MISSED: "bg-muted/25",
 };
